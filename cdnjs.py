@@ -3,9 +3,7 @@ import sublime_plugin
 import urllib
 import urllib2
 import threading
-import re
 import json
-import random
 
 class CdnjsCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
