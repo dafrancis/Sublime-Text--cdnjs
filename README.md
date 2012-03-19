@@ -5,7 +5,7 @@ Like using http://www.cdnjs.com/? Like Sublime Text 2? Like plugins? Well this c
 ## How to use
 
 1. Install plugin
-2. In sublime <ctrl|cmd> + <shift> + p
+2. In sublime `<ctrl|cmd> + <shift> + p`
 3. Type in cdnjs (There will be an option to install a package)
 4. Search and choose from the list of javascript libraries
 5. ???
