@@ -47,5 +47,10 @@ class CdnjsApiCall(threading.Thread):
         pkg = self.packages[index]
         cdn_url = "//cdnjs.cloudflare.com/ajax/libs/"
         path = "%s/%s/%s" % (pkg['name'], pkg['version'], pkg['filename'])
-        tag = "<script src=\"%s%s\"></script>" % (cdn_url, path)
+        
+        if pkg['filename'][-4:] == '.css':
+            tag = "<link href=\"%s%s\">" % (cdn_url, path)
+        else:
+            tag = "<script src=\"%s%s\"></script>" % (cdn_url, path)
+            
         self.view.insert(self.edit, self.view.sel()[0].begin(), tag)
