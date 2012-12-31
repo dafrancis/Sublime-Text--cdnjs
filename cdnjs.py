@@ -3,6 +3,7 @@ import sublime_plugin
 import urllib2
 import threading
 import json
+import os
 
 
 class CdnjsCommand(sublime_plugin.TextCommand):
@@ -48,20 +49,21 @@ class CdnjsApiCall(threading.Thread):
         cdn_url = "//cdnjs.cloudflare.com/ajax/libs/"
         path = cdn_url + "%s/%s/%s" % (pkg['name'], pkg['version'], pkg['filename'])
         
-        open_file_name = self.view.file_name()
-        tag_type = pkg['filename'][-4:]
+        markup = os.path.splitext(self.view.file_name())[1]
+        tag_type = os.path.splitext(pkg['filename'])[1]
+        is_css = tag_type == '.css'
 
-        if open_file_name[-5:] == '.slim':
-            if tag_type == '.css':             tag = "link href=\"%s\"" % path
-            else:                              tag = "script src=\"%s\"" % path
-        elif open_file_name[-5:] == '.haml':
-            if tag_type == '.css':             tag = "%%link{:href=>\"%s\"}" % path
-            else:                              tag = "%%script{:src=>\"%s\"}" % path
-        elif open_file_name[-5:] == '.jade':
-            if tag_type == '.css':             tag = "link(href=\"%s\")" % path
-            else:                              tag = "script(src=\"%s\")" % path
+        if markup   == '.slim':
+            if is_css:            tag = "link href=\"%s\"" % path
+            else:                 tag = "script src=\"%s\"" % path
+        elif markup == '.haml':
+            if is_css:            tag = "%%link{:href=>\"%s\"}" % path
+            else:                 tag = "%%script{:src=>\"%s\"}" % path
+        elif markup == '.jade':
+            if is_css:            tag = "link(href=\"%s\")" % path
+            else:                 tag = "script(src=\"%s\")" % path
         else:
-            if tag_type == '.css':             tag = "<link href=\"%s\">" % path
-            else:                              tag = "<script src=\"%s\"></script>" % path
+            if is_css:            tag = "<link href=\"%s\">" % path
+            else:                 tag = "<script src=\"%s\"></script>" % path
 
         self.view.insert(self.edit, self.view.sel()[0].begin(), tag)
