@@ -46,11 +46,22 @@ class CdnjsApiCall(threading.Thread):
             return
         pkg = self.packages[index]
         cdn_url = "//cdnjs.cloudflare.com/ajax/libs/"
-        path = "%s/%s/%s" % (pkg['name'], pkg['version'], pkg['filename'])
+        path = cdn_url + "%s/%s/%s" % (pkg['name'], pkg['version'], pkg['filename'])
         
-        if pkg['filename'][-4:] == '.css':
-            tag = "<link href=\"%s%s\">" % (cdn_url, path)
+        open_file_name = self.view.file_name()
+        tag_type = pkg['filename'][-4:]
+
+        if open_file_name[-5:] == '.slim':
+            if tag_type == '.css':             tag = "link href=\"%s\"" % path
+            else:                              tag = "script src=\"%s\"" % path
+        elif open_file_name[-5:] == '.haml':
+            if tag_type == '.css':             tag = "%%link{:href=>\"%s\"}" % path
+            else:                              tag = "%%script{:src=>\"%s\"}" % path
+        elif open_file_name[-5:] == '.jade':
+            if tag_type == '.css':             tag = "link(href=\"%s\")" % path
+            else:                              tag = "script(src=\"%s\")" % path
         else:
-            tag = "<script src=\"%s%s\"></script>" % (cdn_url, path)
-            
+            if tag_type == '.css':             tag = "<link href=\"%s\">" % path
+            else:                              tag = "<script src=\"%s\"></script>" % path
+
         self.view.insert(self.edit, self.view.sel()[0].begin(), tag)
