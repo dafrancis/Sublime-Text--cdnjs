@@ -3,6 +3,7 @@ import sublime_plugin
 import urllib2
 import threading
 import json
+import os
 
 
 class CdnjsCommand(sublime_plugin.TextCommand):
@@ -46,11 +47,23 @@ class CdnjsApiCall(threading.Thread):
             return
         pkg = self.packages[index]
         cdn_url = "//cdnjs.cloudflare.com/ajax/libs/"
-        path = "%s/%s/%s" % (pkg['name'], pkg['version'], pkg['filename'])
+        path = cdn_url + "%s/%s/%s" % (pkg['name'], pkg['version'], pkg['filename'])
         
-        if pkg['filename'][-4:] == '.css':
-            tag = "<link href=\"%s%s\">" % (cdn_url, path)
+        markup = os.path.splitext(self.view.file_name())[1]
+        tag_type = os.path.splitext(pkg['filename'])[1]
+        is_css = tag_type == '.css'
+
+        if markup   == '.slim':
+            if is_css:            tag = "link href=\"%s\"" % path
+            else:                 tag = "script src=\"%s\"" % path
+        elif markup == '.haml':
+            if is_css:            tag = "%%link{:href=>\"%s\"}" % path
+            else:                 tag = "%%script{:src=>\"%s\"}" % path
+        elif markup == '.jade':
+            if is_css:            tag = "link(href=\"%s\")" % path
+            else:                 tag = "script(src=\"%s\")" % path
         else:
-            tag = "<script src=\"%s%s\"></script>" % (cdn_url, path)
-            
+            if is_css:            tag = "<link href=\"%s\">" % path
+            else:                 tag = "<script src=\"%s\"></script>" % path
+
         self.view.insert(self.edit, self.view.sel()[0].begin(), tag)
