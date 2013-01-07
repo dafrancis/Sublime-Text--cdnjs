@@ -49,7 +49,8 @@ class CdnjsApiCall(threading.Thread):
         cdn_url = "//cdnjs.cloudflare.com/ajax/libs/"
         path = cdn_url + "%s/%s/%s" % (pkg['name'], pkg['version'], pkg['filename'])
         
-        markup = os.path.splitext(self.view.file_name())[1]
+        markup = os.path.splitext(self.view.file_name() or "")[1]
+
         tag_type = os.path.splitext(pkg['filename'])[1]
         is_css = tag_type == '.css'
 
