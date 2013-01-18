@@ -55,16 +55,16 @@ class CdnjsApiCall(threading.Thread):
         is_css = tag_type == '.css'
 
         if markup   == '.slim':
-            if is_css:            tag = "link href=\"%s\"" % path
+            if is_css:            tag = "link rel=\"stylesheet\" href=\"%s\"" % path
             else:                 tag = "script src=\"%s\"" % path
         elif markup == '.haml':
-            if is_css:            tag = "%%link{:href=>\"%s\"}" % path
+            if is_css:            tag = "%%link{:rel=>\"stylesheet\",:href=>\"%s\"}" % path
             else:                 tag = "%%script{:src=>\"%s\"}" % path
         elif markup == '.jade':
-            if is_css:            tag = "link(href=\"%s\")" % path
+            if is_css:            tag = "link(rel=\"stylesheet\",href=\"%s\")" % path
             else:                 tag = "script(src=\"%s\")" % path
         else:
-            if is_css:            tag = "<link href=\"%s\">" % path
+            if is_css:            tag = "<link rel=\"stylesheet\" href=\"%s\" />" % path
             else:                 tag = "<script src=\"%s\"></script>" % path
 
         self.view.insert(self.edit, self.view.sel()[0].begin(), tag)
