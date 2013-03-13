@@ -1,4 +1,4 @@
-# Sublime Text 2 - cdnjs
+# Sublime Text - cdnjs
 
 Like using http://www.cdnjs.com/? Like Sublime Text 2? Like plugins? Well this combines all three!
 
