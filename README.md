@@ -1,6 +1,6 @@
 # Sublime Text - cdnjs
 
-Like using http://www.cdnjs.com/? Like Sublime Text 2? Like plugins? Well this combines all three!
+Like using http://www.cdnjs.com/? Like Sublime Text? Like plugins? Well this combines all three!
 
 ## How to use
 
