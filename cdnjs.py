@@ -164,14 +164,17 @@ class CdnjsApiCall(threading.Thread):
             http_file = urlopen(request, timeout=self.timeout)
             result = http_file.read().decode('utf-8')
 
-            packages = json.loads(result)['packages'][:-1]
+            self.packages = json.loads(result)['packages'][:-1]
 
-            self.view.run_command('cdnjs_library_picker', {
-                "packages": packages
-            })
+            sublime.set_timeout(self.callback, 10)
         except HTTPError as e:
             error_str = '%s: HTTP error %s contacting API' % (__name__, str(e.code))
             sublime.error_message(error_str)
         except URLError as e:
             error_str = '%s: URL error %s contacting API' % (__name__, str(e.reason))
             sublime.error_message(error_str)
+
+    def callback(self):
+        self.view.run_command('cdnjs_library_picker', {
+            "packages": self.packages
+        })
