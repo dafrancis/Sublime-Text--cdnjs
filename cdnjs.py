@@ -46,6 +46,11 @@ class CdnjsCommand(sublime_plugin.TextCommand):
         CdnjsApiCall(self.view, 30).start()
 
 
+class CdnjsUrlCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        CdnjsApiCall(self.view, 30, True).start()
+
+
 class CdnjsPlaceTextCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         self.view.insert(edit, self.view.sel()[0].begin(), args["tag"])
@@ -54,6 +59,7 @@ class CdnjsPlaceTextCommand(sublime_plugin.TextCommand):
 class CdnjsLibraryPickerCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         self.packages = args["packages"]
+        self.onlyURL = args["onlyURL"]
         sublime.set_timeout(self.show_quickpanel, 10)
 
     def get_list(self):
@@ -68,13 +74,15 @@ class CdnjsLibraryPickerCommand(sublime_plugin.TextCommand):
 
         pkg = self.packages[index]
         self.view.run_command('cdnjs_version_picker', {
-            "package": pkg
+            "package": pkg,
+            "onlyURL": self.onlyURL
         })
 
 
 class CdnjsVersionPickerCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         self.package = args["package"]
+        self.onlyURL = args["onlyURL"]
         sublime.set_timeout(self.show_quickpanel, 10)
 
     def get_list(self):
@@ -92,6 +100,7 @@ class CdnjsVersionPickerCommand(sublime_plugin.TextCommand):
         asset = self.package["assets"][index]
         self.view.run_command('cdnjs_file_picker', {
             "package": self.package,
+            "onlyURL": self.onlyURL,
             "asset": asset
         })
 
@@ -100,6 +109,7 @@ class CdnjsFilePickerCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         self.package = args["package"]
         self.asset = args["asset"]
+        self.onlyURL = args["onlyURL"]
         sublime.set_timeout(self.show_quickpanel, 10)
 
     def get_list(self):
@@ -116,7 +126,8 @@ class CdnjsFilePickerCommand(sublime_plugin.TextCommand):
         self.view.run_command('cdnjs_tag_builder', {
             "package": self.package,
             "asset": self.asset,
-            "file": fileName
+            "file": fileName,
+            "onlyURL": self.onlyURL
         })
 
 
@@ -128,6 +139,7 @@ class CdnjsTagBuilder(sublime_plugin.TextCommand):
         self.package = args["package"]
         self.asset = args["asset"]
         self.file = args["file"]
+        self.onlyURL = args["onlyURL"]
         self.insert_tag()
 
     def get_path(self):
@@ -144,16 +156,21 @@ class CdnjsTagBuilder(sublime_plugin.TextCommand):
         markup = os.path.splitext(self.view.file_name() or "")[1]
         tag_type = os.path.splitext(path)[1]
 
-        tag = build_tag(path, markup, tag_type)
+        if self.onlyURL:
+            tag = path
+        else:
+            tag = build_tag(path, markup, tag_type)
+
         self.view.run_command('cdnjs_place_text', {"tag": tag})
 
 
 class CdnjsApiCall(threading.Thread):
     PACKAGES_URL = 'http://www.cdnjs.com/packages.json'
 
-    def __init__(self, view, timeout):
+    def __init__(self, view, timeout, onlyURL = False):
         self.view = view
         self.timeout = timeout
+        self.onlyURL = onlyURL
         threading.Thread.__init__(self)
 
     def run(self):
@@ -176,5 +193,6 @@ class CdnjsApiCall(threading.Thread):
 
     def callback(self):
         self.view.run_command('cdnjs_library_picker', {
-            "packages": self.packages
+            "packages": self.packages,
+            "onlyURL": self.onlyURL
         })
