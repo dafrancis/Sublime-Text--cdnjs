@@ -18,19 +18,19 @@ except:
 TAGS = {
     ".html": {
         ".js": "<script src=\"%s\"></script>",
-        ".css": "<link href=\"%s\">"
+        ".css": "<link rel=\"stylesheet\" href=\"%s\">"
     },
     ".slim": {
         ".js": "script src=\"%s\"",
-        ".css": "link href=\"%s\""
+        ".css": "link rel=\"stylesheet\" href=\"%s\""
     },
     ".jade": {
         ".js": "script(src=\"%s\")",
-        ".css": "link(href=\"%s\")"
+        ".css": "link(rel=\"stylesheet\", href=\"%s\")"
     },
     ".haml": {
         ".js": "%%script{:src=>\"%s\"}",
-        ".css": "%%link{:href=>\"%s\"}"
+        ".css": "%%link{:rel=>\"stylesheet\", :href=>\"%s\"}"
     }
 }
 
@@ -167,7 +167,7 @@ class CdnjsTagBuilder(sublime_plugin.TextCommand):
 class CdnjsApiCall(threading.Thread):
     PACKAGES_URL = 'http://www.cdnjs.com/packages.json'
 
-    def __init__(self, view, timeout, onlyURL = False):
+    def __init__(self, view, timeout, onlyURL=False):
         self.view = view
         self.timeout = timeout
         self.onlyURL = onlyURL
