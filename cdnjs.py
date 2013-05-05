@@ -145,7 +145,7 @@ class CdnjsTagBuilder(sublime_plugin.TextCommand):
     def get_path(self):
         path = self.PATH_FORMAT % {
             "name": self.package["name"],
-            "version": self.package["version"],
+            "version": self.asset["version"],
             "filename": self.file
         }
 
