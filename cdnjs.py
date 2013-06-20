@@ -164,6 +164,23 @@ class CdnjsTagBuilder(sublime_plugin.TextCommand):
         self.view.run_command('cdnjs_place_text', {"tag": tag})
 
 
+
+class CdnjsLoadingAnimation():
+    def __init__(self,watch_thread):
+        self.watch_thread = watch_thread
+        sublime.set_timeout( lambda: self.run(0), 150 )
+
+    def run(self, i):
+        sublime.status_message('Fetching latest package list from cdnjs%s' % \
+            ('.' * (i%4)) )
+
+        if not self.watch_thread.is_alive():
+            sublime.status_message('')
+            return
+
+        sublime.set_timeout( lambda: self.run(i+1), 150 )
+
+
 class CdnjsApiCall(threading.Thread):
     PACKAGES_URL = 'http://www.cdnjs.com/packages.json'
 
@@ -172,6 +189,7 @@ class CdnjsApiCall(threading.Thread):
         self.timeout = timeout
         self.onlyURL = onlyURL
         threading.Thread.__init__(self)
+        CdnjsLoadingAnimation(self)
 
     def run(self):
         try:
