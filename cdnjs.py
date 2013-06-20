@@ -164,7 +164,6 @@ class CdnjsTagBuilder(sublime_plugin.TextCommand):
         self.view.run_command('cdnjs_place_text', {"tag": tag})
 
 
-
 class CdnjsLoadingAnimation():
     def __init__(self,watch_thread):
         self.watch_thread = watch_thread
