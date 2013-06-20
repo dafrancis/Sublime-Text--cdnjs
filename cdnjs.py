@@ -63,7 +63,7 @@ class CdnjsLibraryPickerCommand(sublime_plugin.TextCommand):
         sublime.set_timeout(self.show_quickpanel, 10)
 
     def get_list(self):
-        return [[x['name'], x['description']] for x in self.packages]
+        return [ [ x['name'], x.get('description','') ] for x in self.packages]
 
     def show_quickpanel(self):
         self.view.window().show_quick_panel(self.get_list(), self.callback)
