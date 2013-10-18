@@ -11,6 +11,19 @@ Like using http://www.cdnjs.com/? Like Sublime Text? Like plugins? Well this com
 5. ???
 6. PROFIT!!!
 
+## Proxy Settings
+
+You can create a settings file: "Sublime Text 3/Packages/User/cdnjs.sublime-settings" and include the following setting to set use the plugin from behind a proxy:
+
+    {
+    	"proxies":{
+    		"http":"http://proxy.com:80",
+    		"https":"https://proxy.com:22"
+    	}
+    }
+
+
+
 ## Licence
 
 Copyright (C) 2012 Dafydd Francis 
