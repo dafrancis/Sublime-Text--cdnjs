@@ -8,12 +8,19 @@ try:
     from urllib.request import urlopen
     from urllib.error import HTTPError
     from urllib.error import URLError
+    from urllib.request import ProxyHandler
+    from urllib.request import build_opener
+    from urllib.request import install_opener
+    urllib_version = 1
 except:
     from urllib2 import Request
     from urllib2 import urlopen
     from urllib2 import HTTPError
     from urllib2 import URLError
+    import urllib2
+    urllib_version = 2
 
+settings = sublime.load_settings("cdnjs.sublime-settings")
 
 TAGS = {
     ".html": {
@@ -187,6 +194,7 @@ class CdnjsApiCall(threading.Thread):
         self.view = view
         self.timeout = timeout
         self.onlyURL = onlyURL
+        self.proxies = settings.get("proxies", {})
         threading.Thread.__init__(self)
         CdnjsLoadingAnimation(self)
 
@@ -195,7 +203,12 @@ class CdnjsApiCall(threading.Thread):
             request = Request(self.PACKAGES_URL, headers={
                 "User-Agent": "Sublime cdnjs"
             })
+            
+            proxy = ProxyHandler(self.proxies)
+            opener = build_opener(proxy)
+            install_opener(opener)
             http_file = urlopen(request, timeout=self.timeout)
+            
             result = http_file.read().decode('utf-8')
 
             self.packages = json.loads(result)['packages'][:-1]
