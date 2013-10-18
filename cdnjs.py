@@ -47,11 +47,13 @@ def build_tag(url, extension, tagType):
         extension = ".html"
     return TAGS[extension][tagType] % url
 
-
 class CdnjsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         CdnjsApiCall(self.view, 30).start()
 
+class CdnjsFileCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        CdnjsApiCall(self.view, 30, True, True).start()
 
 class CdnjsUrlCommand(sublime_plugin.TextCommand):
     def run(self, edit):
@@ -67,6 +69,7 @@ class CdnjsLibraryPickerCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         self.packages = args["packages"]
         self.onlyURL = args["onlyURL"]
+        self.wholeFile = args["wholeFile"]
         sublime.set_timeout(self.show_quickpanel, 10)
 
     def get_list(self):
@@ -82,7 +85,8 @@ class CdnjsLibraryPickerCommand(sublime_plugin.TextCommand):
         pkg = self.packages[index]
         self.view.run_command('cdnjs_version_picker', {
             "package": pkg,
-            "onlyURL": self.onlyURL
+            "onlyURL": self.onlyURL,
+            "wholeFile":self.wholeFile
         })
 
 
@@ -90,6 +94,7 @@ class CdnjsVersionPickerCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         self.package = args["package"]
         self.onlyURL = args["onlyURL"]
+        self.wholeFile = args["wholeFile"]
         sublime.set_timeout(self.show_quickpanel, 10)
 
     def get_list(self):
@@ -108,6 +113,7 @@ class CdnjsVersionPickerCommand(sublime_plugin.TextCommand):
         self.view.run_command('cdnjs_file_picker', {
             "package": self.package,
             "onlyURL": self.onlyURL,
+            "wholeFile": self.wholeFile,
             "asset": asset
         })
 
@@ -117,6 +123,7 @@ class CdnjsFilePickerCommand(sublime_plugin.TextCommand):
         self.package = args["package"]
         self.asset = args["asset"]
         self.onlyURL = args["onlyURL"]
+        self.wholeFile = args["wholeFile"]
         sublime.set_timeout(self.show_quickpanel, 10)
 
     def get_list(self):
@@ -134,7 +141,8 @@ class CdnjsFilePickerCommand(sublime_plugin.TextCommand):
             "package": self.package,
             "asset": self.asset,
             "file": fileName,
-            "onlyURL": self.onlyURL
+            "onlyURL": self.onlyURL,
+            "wholeFile":self.wholeFile
         })
 
 
@@ -147,6 +155,7 @@ class CdnjsTagBuilder(sublime_plugin.TextCommand):
         self.asset = args["asset"]
         self.file = args["file"]
         self.onlyURL = args["onlyURL"]
+        self.wholeFile = args["wholeFile"]
         self.insert_tag()
 
     def get_path(self):
@@ -163,13 +172,21 @@ class CdnjsTagBuilder(sublime_plugin.TextCommand):
         markup = os.path.splitext(self.view.file_name() or "")[1]
         tag_type = os.path.splitext(path)[1]
 
-        if self.onlyURL:
+        if self.wholeFile:
+            self.view.run_command('cdnjs_download_file', {"file": path})
+            return 
+        elif self.onlyURL:
             tag = path
         else:
             tag = build_tag(path, markup, tag_type)
 
         self.view.run_command('cdnjs_place_text', {"tag": tag})
 
+
+class CdnjsDownloadFileCommand(sublime_plugin.TextCommand):
+    def run(self, edit, **args):
+        sublime.status_message("Downloading file %s" % args["file"])
+        CdnjsDownloadFile(self.view, 30, "http:"+args["file"]).start()
 
 class CdnjsLoadingAnimation():
     def __init__(self,watch_thread):
@@ -186,14 +203,14 @@ class CdnjsLoadingAnimation():
 
         sublime.set_timeout( lambda: self.run(i+1), 150 )
 
-
 class CdnjsApiCall(threading.Thread):
     PACKAGES_URL = 'http://www.cdnjs.com/packages.json'
 
-    def __init__(self, view, timeout, onlyURL=False):
+    def __init__(self, view, timeout, onlyURL=False, wholeFile=False):
         self.view = view
         self.timeout = timeout
         self.onlyURL = onlyURL
+        self.wholeFile = wholeFile
         self.proxies = settings.get("proxies", {})
         threading.Thread.__init__(self)
         CdnjsLoadingAnimation(self)
@@ -224,5 +241,43 @@ class CdnjsApiCall(threading.Thread):
     def callback(self):
         self.view.run_command('cdnjs_library_picker', {
             "packages": self.packages,
-            "onlyURL": self.onlyURL
+            "onlyURL": self.onlyURL,
+            "wholeFile": self.wholeFile
         })
+
+class CdnjsDownloadFile(threading.Thread):
+    def __init__(self, view, timeout, file_path):
+        self.view = view
+        self.timeout = timeout
+        self.file_path = file_path
+        self.proxies = settings.get("proxies", {})
+        threading.Thread.__init__(self)
+
+    def run(self):
+        try:
+            request = Request(self.file_path, headers={
+                "User-Agent": "Sublime cdnjs"
+            })
+            
+            proxy = ProxyHandler(self.proxies)
+            opener = build_opener(proxy)
+            install_opener(opener)
+            http_file = urlopen(request, timeout=self.timeout)
+            
+            result = http_file.read().decode('utf-8')
+
+            self.data = result
+
+            sublime.set_timeout(self.callback, 10)
+        except HTTPError as e:
+            error_str = '%s: HTTP error %s contacting API' % (__name__, str(e.code))
+            sublime.error_message(error_str)
+        except URLError as e:
+            error_str = '%s: URL error %s contacting API' % (__name__, str(e.reason))
+            sublime.error_message(error_str)
+
+    def callback(self):
+        self.view.run_command('cdnjs_place_text', {
+            "tag":self.data
+        })
+
