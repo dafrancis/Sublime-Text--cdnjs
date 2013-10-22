@@ -6,5 +6,9 @@
     {
         "caption": "Cdnjs: Import URL only",
         "command": "cdnjs_url"
+    },
+    {
+        "caption": "Cdnjs: Import Entire File",
+        "command": "cdnjs_file"
     }
 ]
