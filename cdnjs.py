@@ -11,14 +11,14 @@ try:
     from urllib.request import ProxyHandler
     from urllib.request import build_opener
     from urllib.request import install_opener
-    urllib_version = 1
 except:
     from urllib2 import Request
     from urllib2 import urlopen
     from urllib2 import HTTPError
     from urllib2 import URLError
-    import urllib2
-    urllib_version = 2
+    from urllib2 import ProxyHandler
+    from urllib2 import build_opener
+    from urllib2 import install_opener
 
 settings = sublime.load_settings("cdnjs.sublime-settings")
 
