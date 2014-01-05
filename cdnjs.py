@@ -3,6 +3,7 @@ import sublime_plugin
 import threading
 import json
 import os
+import time
 try:
     from urllib.request import Request
     from urllib.request import urlopen
@@ -194,8 +195,9 @@ class CdnjsLoadingAnimation():
         sublime.set_timeout( lambda: self.run(0), 150 )
 
     def run(self, i):
-        sublime.status_message('Fetching latest package list from cdnjs%s' % \
-            ('.' * (i%4)) )
+        source = 'cached' if self.watch_thread.cachedResponse else 'latest'
+        status_str = 'Fetching %s package list from cdn%s' % (source,'.' * (i%4))
+        sublime.status_message(status_str)
 
         if not self.watch_thread.is_alive():
             sublime.status_message('')
@@ -212,6 +214,10 @@ class CdnjsApiCall(threading.Thread):
         self.onlyURL = onlyURL
         self.wholeFile = wholeFile
         self.proxies = settings.get("proxies", {})
+        self.cachedResponse = False
+        self.cacheTime = settings.get("cache_ttl", 600)
+        self.cacheDisabled = settings.get("cache_disabled", False)
+        self.cacheFilePath = os.path.dirname(os.path.abspath(__file__))+'/package_list.cdncache'
         threading.Thread.__init__(self)
         CdnjsLoadingAnimation(self)
 
@@ -220,13 +226,19 @@ class CdnjsApiCall(threading.Thread):
             request = Request(self.PACKAGES_URL, headers={
                 "User-Agent": "Sublime cdnjs"
             })
-            
-            proxy = ProxyHandler(self.proxies)
-            opener = build_opener(proxy)
-            install_opener(opener)
-            http_file = urlopen(request, timeout=self.timeout)
-            
-            result = http_file.read().decode('utf-8')
+
+            #check the cache first
+            result = self.get_cached_packagelist() if not self.cacheDisabled else None
+            #not found, make the http request to fetch the packagelist
+            if not result:
+                proxy = ProxyHandler(self.proxies)
+                opener = build_opener(proxy)
+                install_opener(opener)
+                http_file = urlopen(request, timeout=self.timeout)
+
+                result = http_file.read().decode('utf-8')
+                #set the cache
+                self.set_packagelist_cache(result)
 
             self.packages = json.loads(result)['packages'][:-1]
 
@@ -245,6 +257,43 @@ class CdnjsApiCall(threading.Thread):
             "wholeFile": self.wholeFile
         })
 
+    def get_cached_packagelist(self):
+
+        try:
+            #try to open the cached file
+            f = open(self.cacheFilePath, 'r')
+            #create a dict
+            packageList = json.loads(f.read())
+            #and get the last save timestamp
+            last_save = packageList.get('last_save')
+
+            #check if the last save is older than the cacheTime
+            if (int(time.time()) - last_save) > self.cacheTime:
+                #missed cache, clear file
+                os.remove(self.cacheFilePath)
+                return None
+            else:
+                #hit cache, return cached data
+                self.cachedResponse = True
+                return json.dumps(packageList)
+
+        except IOError as e:
+            #there was no file found, no cache is set
+            return None
+        except Exception as e:
+            print('Uncaught exception in cdnjs get cache: {}'.format(e))
+            return None
+
+    def set_packagelist_cache(self,packageListString):
+        #read the package list to set a last_save stamp
+        packageList = json.loads(packageListString)
+        packageList.update({'last_save':int(time.time())})
+
+        #write the value of the packagelist to a cache file
+        f = open(self.cacheFilePath, 'w')
+        f.write(json.dumps(packageList))
+
+
 class CdnjsDownloadFile(threading.Thread):
     def __init__(self, view, timeout, file_path):
         self.view = view
@@ -258,12 +307,12 @@ class CdnjsDownloadFile(threading.Thread):
             request = Request(self.file_path, headers={
                 "User-Agent": "Sublime cdnjs"
             })
-            
+
             proxy = ProxyHandler(self.proxies)
             opener = build_opener(proxy)
             install_opener(opener)
             http_file = urlopen(request, timeout=self.timeout)
-            
+
             result = http_file.read().decode('utf-8')
 
             self.data = result

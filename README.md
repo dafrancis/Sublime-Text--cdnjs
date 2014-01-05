@@ -22,7 +22,14 @@ You can create a settings file: `"Sublime Text 3/Packages/User/cdnjs.sublime-set
     	}
     }
 
+## Cache Settings
 
+This plugin will cache a copy of the packages file from cdnjs. You can create a settings file: `"Sublime Text 3/Packages/User/cdnjs.sublime-settings"` and include the following settings to control the cache:
+
+    {
+        "cache_ttl": 600,
+        "cache_disabled": false
+    }
 
 ## Licence
 
