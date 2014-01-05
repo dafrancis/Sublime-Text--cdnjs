@@ -196,7 +196,8 @@ class CdnjsLoadingAnimation():
 
     def run(self, i):
         source = 'cached' if self.watch_thread.cachedResponse else 'latest'
-        sublime.status_message('Fetching {} package list from cdn{}'.format(source,'.' * (i%4)))
+        status_str = 'Fetching %s package list from cdn%s' % (source,'.' * (i%4))
+        sublime.status_message(status_str)
 
         if not self.watch_thread.is_alive():
             sublime.status_message('')
