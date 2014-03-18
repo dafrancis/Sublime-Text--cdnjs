@@ -43,6 +43,11 @@ TAGS = {
 }
 
 
+def get_cache_path():
+    home = expanduser("~")
+    return home + '/package_list.cdncache'
+
+
 def build_tag(url, extension, tagType):
     if extension not in TAGS:
         extension = ".html"
@@ -217,7 +222,7 @@ class CdnjsApiCall(threading.Thread):
         self.cachedResponse = False
         self.cacheTime = settings.get("cache_ttl", 600)
         self.cacheDisabled = settings.get("cache_disabled", False)
-        self.cacheFilePath = os.path.dirname(os.path.abspath(__file__))+'/package_list.cdncache'
+        self.cacheFilePath = get_cache_path()
         threading.Thread.__init__(self)
         CdnjsLoadingAnimation(self)
 
