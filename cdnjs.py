@@ -281,12 +281,13 @@ class CdnjsApiCall(threading.Thread):
                 #hit cache, return cached data
                 self.cachedResponse = True
                 return json.dumps(packageList)
+            f.close()
 
         except IOError as e:
             #there was no file found, no cache is set
             return None
         except Exception as e:
-            print('Uncaught exception in cdnjs get cache: {}'.format(e))
+            print('Uncaught exception in cdnjs get cache: {0}'.format(e))
             return None
 
     def set_packagelist_cache(self,packageListString):
@@ -297,6 +298,7 @@ class CdnjsApiCall(threading.Thread):
         #write the value of the packagelist to a cache file
         f = open(self.cacheFilePath, 'w')
         f.write(json.dumps(packageList))
+        f.close()
 
 
 class CdnjsDownloadFile(threading.Thread):
