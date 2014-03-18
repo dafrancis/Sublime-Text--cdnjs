@@ -31,6 +31,10 @@ This plugin will cache a copy of the packages file from cdnjs. You can create a 
         "cache_disabled": false
     }
 
+## Contributing
+
+Pull requests are welcome, as long as they work on all supported operating systems (Windows, Mac, and Linux), and Sublime Text 2 and 3.
+
 ## Licence
 
 Copyright (C) 2012 Dafydd Francis 
