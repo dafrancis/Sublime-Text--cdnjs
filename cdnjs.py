@@ -44,7 +44,7 @@ TAGS = {
 
 
 def get_cache_path():
-    home = expanduser("~")
+    home = os.path.expanduser("~")
     return home + '/package_list.cdncache'
 
 
