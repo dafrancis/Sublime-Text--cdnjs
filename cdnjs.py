@@ -288,7 +288,10 @@ class CdnjsApiCall(threading.Thread):
             print('Uncaught exception in cdnjs get cache: {0}'.format(e))
             return None
         finally:
-            f.close()
+            try:
+                f.close()
+            except:
+                pass  # I give up
 
     def set_packagelist_cache(self,packageListString):
         #read the package list to set a last_save stamp
