@@ -3,15 +3,14 @@ import threading
 
 from .http import get
 
-SETTINGS = sublime.load_settings("cdnjs.sublime-settings")
-
 
 class CdnjsDownloadFile(threading.Thread):
     def __init__(self, view, timeout, file_path):
+        self.settings = sublime.load_settings("cdnjs.sublime-settings")
         self.view = view
         self.timeout = timeout
         self.file_path = file_path
-        self.proxies = SETTINGS.get("proxies", {})
+        self.proxies = self.settings.get("proxies", {})
         threading.Thread.__init__(self)
 
     def run(self):

@@ -12,21 +12,20 @@ from .cache import get_package_list
 from .cache import set_package_list
 from .cache import time_has_passed
 
-SETTINGS = sublime.load_settings("cdnjs.sublime-settings")
-
 
 class CdnjsApiCall(threading.Thread):
     PACKAGES_URL = 'http://www.cdnjs.com/packages.json'
 
     def __init__(self, view, timeout, onlyURL=False, wholeFile=False):
+        self.settings = sublime.load_settings("cdnjs.sublime-settings")
         self.view = view
         self.timeout = timeout
         self.onlyURL = onlyURL
         self.wholeFile = wholeFile
-        self.proxies = SETTINGS.get("proxies", {})
+        self.proxies = self.settings.get("proxies", {})
         self.cachedResponse = False
-        self.cacheTime = SETTINGS.get("cache_ttl", 600)
-        self.cacheDisabled = SETTINGS.get("cache_disabled", False)
+        self.cacheTime = self.settings.get("cache_ttl", 600)
+        self.cacheDisabled = self.settings.get("cache_disabled", False)
         self.cacheFilePath = get_cache_path()
         threading.Thread.__init__(self)
         CdnjsLoadingAnimation(self)
