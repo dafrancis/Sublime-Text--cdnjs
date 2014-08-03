@@ -13,7 +13,9 @@ elif int(sublime.version()) > 3000:
 if st_version == 3:
     from .lib.api import CdnjsApiCall
     from .lib.download import CdnjsDownloadFile
+    from .lib.search import CdnjsSearchCall
 else:
+    from lib.search import CdnjsSearchCall
     from lib.api import CdnjsApiCall
     from lib.download import CdnjsDownloadFile
 
@@ -38,3 +40,7 @@ class CdnjsDownloadFileCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         sublime.status_message("Downloading file %s" % args["file"])
         CdnjsDownloadFile(self.view, 30, "http:"+args["file"]).start()
+
+class CdnjsSearchCommand(sublime_plugin.TextCommand):
+    def run(self, edit, **args):
+        CdnjsSearchCall(self.view, 30).start()

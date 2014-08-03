@@ -10,5 +10,9 @@
     {
         "caption": "Cdnjs: Import Entire File",
         "command": "cdnjs_file"
+    },
+    {
+        "caption": "Cdnjs: Search",
+        "command": "cdnjs_search"
     }
 ]
