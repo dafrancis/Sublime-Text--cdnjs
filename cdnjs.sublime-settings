@@ -1,0 +1,8 @@
+{
+    "cache_ttl": 600,
+    "cache_disabled": false,
+    "search": {
+        "path": "/libraries?fields=assets,description&search=",
+        "domain": "http://api.cdnjs.com"
+    },
+}
