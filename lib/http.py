@@ -1,4 +1,5 @@
 import sublime
+import zlib
 
 try:
     from urllib.request import Request
@@ -21,7 +22,8 @@ except ImportError:
 def get(path, proxies, timeout):
     try:
         request = Request(path, headers={
-            "User-Agent": "Sublime cdnjs"
+            "User-Agent": "Sublime cdnjs",
+            "Accept-Encoding": "gzip,deflate,sdch"
         })
 
         proxy = ProxyHandler(proxies)
@@ -29,8 +31,14 @@ def get(path, proxies, timeout):
         install_opener(opener)
         http_file = urlopen(request, timeout=timeout)
 
-        result = http_file.read().decode('utf-8')
-        return result
+        result = http_file.read()
+
+        # decompress response body when content-encoding is gzip
+        respInfo = http_file.info()
+        if (("Content-Encoding" in respInfo) and (respInfo['Content-Encoding'] == "gzip")):
+            result = zlib.decompress(result, 16+zlib.MAX_WBITS);
+
+        return result.decode('utf-8')
     except HTTPError as e:
         error_str = '%s: HTTP error %s contacting API' % (__name__, str(e.code))
         sublime.error_message(error_str)
