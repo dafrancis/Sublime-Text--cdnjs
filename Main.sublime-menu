@@ -1,31 +1,38 @@
 [
-		{
-				"caption": "Preferences",
-				"mnemonic": "n",
-				"id": "preferences",
+	{
+		"caption": "Preferences",
+		"mnemonic": "n",
+		"id": "preferences",
+		"children":
+		[
+			{
+				"caption": "Package Settings",
+				"mnemonic": "P",
+				"id": "package-settings",
 				"children":
 				[
-						{
-							"caption": "Package Settings",
-							"mnemonic": "P",
-							"id": "package-settings",
-							"children":
-							[
-									{
-											"caption": "Sublime-Text--cdnjs",
-											"children":
-											[
-													{
-															"command": "open_file", "args":
-															{
-																	"file": "${packages}/Sublime-Text--cdnjs/cdnjs.sublime-settings"
-															},
-															"caption": "cdnjs settings"
-													}
-											]
-									}
-							]
-						}
+					{
+						"caption": "Sublime-Text--cdnjs",
+						"children":
+						[
+							{
+								"command": "open_file", "args":
+								{
+									"file": "${packages}/Sublime-Text--cdnjs/cdnjs.sublime-settings"
+								},
+								"caption": "Settings - Default"
+							},
+							{
+								"command": "open_file", "args":
+								{
+									"file": "${packages}/User/cdnjs.sublime-settings"
+								},
+								"caption": "Settings - User"
+							}
+						]
+					}
 				]
-		}
+			}
+		]
+	}
 ]

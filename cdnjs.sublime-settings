@@ -1,8 +1,17 @@
 {
+	// Cache a copy of the packages file from cdnjs
     "cache_ttl": 600,
     "cache_disabled": false,
+
+    // Package search path
     "search": {
         "path": "/libraries?fields=assets,description&search=",
         "domain": "http://api.cdnjs.com"
     },
+
+    // Following setting to set use the plugin from behind a proxy
+    // "proxies":{
+    //     "http":"http://proxy.com:80",
+    //     "https":"https://proxy.com:22"
+    // }
 }
