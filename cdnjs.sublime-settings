@@ -7,7 +7,7 @@
     "search": {
         "path": "/libraries?fields=assets,description&search=",
         "domain": "http://api.cdnjs.com"
-    },
+    }
 
     // Following setting to set use the plugin from behind a proxy
     // "proxies":{
