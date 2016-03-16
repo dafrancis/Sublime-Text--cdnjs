@@ -71,8 +71,7 @@ class CdnjsFilePickerCommand(sublime_plugin.TextCommand):
         sublime.set_timeout(self.show_quickpanel, 10)
 
     def get_list(self):
-        files = self.asset.get("files", [])
-        return [f.get("name", '') for f in files]
+        return self.asset.get("files", [])
 
     def show_quickpanel(self):
         self.view.window().show_quick_panel(self.get_list(), self.callback)
@@ -81,7 +80,7 @@ class CdnjsFilePickerCommand(sublime_plugin.TextCommand):
         if index == -1:
             return
 
-        fileName = self.asset["files"][index]["name"]
+        fileName = self.asset["files"][index]
         self.view.run_command('cdnjs_tag_builder', {
             "package": self.package,
             "asset": self.asset,
