@@ -65,8 +65,8 @@ class CdnjsSearchCall(threading.Thread):
             "wholeFile": self.wholeFile
         })
 
-    def on_change(self,**args):
+    def on_change(self, *args, **kwargs):
         pass
 
-    def on_cancel(self,**args):
+    def on_cancel(self, *args, **kwargs):
         pass
